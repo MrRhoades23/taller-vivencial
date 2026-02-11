@@ -22,14 +22,14 @@
 
 <div class="container">
     <div id="loginSection">
-        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/82/Glovo_logo.svg/1200px-Glovo_logo.svg.png" width="120" alt="Glovo">
-        <h2>Web de modulos</h2>
-        <p>Ingresa tu nombre completo para comenzar</p>
-        <label for="nombre">Ingresa tu Correo Service:</label>
-        <br>
-        <button onclick="empezarTaller()">Entrar al Taller</button>
-    </div>
-
+    <h2>Web de Módulos Informativos</h2>
+    <p>Ingresa tu número de documento para comenzar</p>
+    
+    <label for="nombre">DNI del Agente:</label><br><br>
+    <input type="text" id="nombre" placeholder="Ingresa los 8 dígitos" required><br><br>
+    
+    <button onclick="iniciarTaller()">Entrar al Taller</button>
+</div>
     <div id="videoContainer">
         <h3 id="displayNombre"></h3>
         <video id="tallerVideo" controls controlsList="nodownload" disablePictureInPicture>
@@ -85,9 +85,13 @@
         enviarAsistencia(agenteActual);
     });
 
+<script>
 function enviarAsistencia(nombre) {
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse";
-    const entryID = "entry.933702930"; // ID de la pregunta "Nombres y Apellidos"
+    const entryID = "entry.933702930"; // ID del campo DNI en tu Form
+    
+    // Link para que el agente complete el TEST después del video
+    const urlTest = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/viewform?entry.933702930=" + nombre;
 
     const iframe = document.createElement("iframe");
     iframe.name = "hidden_iframe";
@@ -107,15 +111,20 @@ function enviarAsistencia(nombre) {
     form.appendChild(input);
     document.body.appendChild(form);
     
-    form.submit(); // Esto asegura que Google Sheets reciba el dato sí o sí
-    alert("✅ " + nombre + ", el correo ha sido registrado exitosamente.");
+    try {
+        form.submit(); // Registro automático de "Video Visto"
+        alert("✅ Video completado. Ahora responde el test de evaluación.");
+        window.location.href = urlTest; // Redirige al test con el DNI ya escrito
+    } catch (e) {
+        alert("Error al registrar. Por favor, avisa a tu supervisor.");
+    }
 }
-    
 </script>
 
 </body>
 
 </html>
+
 
 
 
