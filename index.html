@@ -25,7 +25,7 @@
         <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/82/Glovo_logo.svg/1200px-Glovo_logo.svg.png" width="120" alt="Glovo">
         <h2>Web de modulos</h2>
         <p>Ingresa tu nombre completo para comenzar</p>
-        <input type="text" id="agenteNombre" placeholder="Nombre y Apellido">
+        <label for="nombre">Ingresa tu Correo Service:</label>
         <br>
         <button onclick="empezarTaller()">Entrar al Taller</button>
     </div>
@@ -108,7 +108,7 @@ function enviarAsistencia(nombre) {
     document.body.appendChild(form);
     
     form.submit(); // Esto asegura que Google Sheets reciba el dato sí o sí
-    alert("✅ " + nombre + ", tu asistencia ha sido registrada.");
+    alert("✅ " + nombre + ", el correo ha sido registrado exitosamente.");
 }
     
 </script>
@@ -116,6 +116,7 @@ function enviarAsistencia(nombre) {
 </body>
 
 </html>
+
 
 
 
