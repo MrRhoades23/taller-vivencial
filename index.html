@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacitación Glovo - Taller Vivencial</title>
+    <style>
+        :root { --primary: #ffc244; --dark: #232323; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f7f7f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 800px; text-align: center; }
+        h2 { color: var(--dark); }
+        input { width: 80%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: var(--primary); border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #eab13b; }
+        #videoContainer { display: none; margin-top: 20px; }
+        video { width: 100%; border-radius: 8px; background: black; }
+        .progress-bar { background: #eee; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
+        #fill { background: var(--primary); height: 100%; width: 0%; transition: 0.2s; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="loginSection">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/82/Glovo_logo.svg/1200px-Glovo_logo.svg.png" width="120" alt="Glovo">
+        <h2>Taller Vivencial</h2>
+        <p>Ingresa tu nombre completo para comenzar</p>
+        <input type="text" id="agenteNombre" placeholder="Nombre y Apellido">
+        <br>
+        <button onclick="empezarTaller()">Entrar al Taller</button>
+    </div>
+
+    <div id="videoContainer">
+        <h3 id="displayNombre"></h3>
+        <video id="tallerVideo" controlsList="nodownload" disablePictureInPicture>
+            <source src="taller.mp4" type="video/mp4">
+            Tu navegador no soporta video.
+        </video>
+        <div class="progress-bar"><div id="fill"></div></div>
+        <p id="statusMsg">Mira el video completo para registrar tu asistencia.</p>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('tallerVideo');
+    const fill = document.getElementById('fill');
+    let tiempoMaximoVisto = 0;
+    let agenteActual = "";
+
+    function empezarTaller() {
+        agenteActual = document.getElementById('agenteNombre').value;
+        if(agenteActual.length < 5) return alert("Por favor, ingresa tu nombre completo");
+        
+        document.getElementById('loginSection').style.display = "none";
+        document.getElementById('videoContainer').style.display = "block";
+        document.getElementById('displayNombre').innerText = "Agente: " + agenteActual;
+    }
+
+    // LÓGICA DE BLOQUEO DE SALTO
+    video.addEventListener('timeupdate', () => {
+        // Actualizar barra de progreso visual
+        let pc = (video.currentTime / video.duration) * 100;
+        fill.style.width = pc + "%";
+
+        // Si el usuario intenta adelantar más de 2 segundos de lo visto
+        if (video.currentTime > tiempoMaximoVisto + 2) {
+            video.currentTime = tiempoMaximoVisto;
+        } else {
+            if(video.currentTime > tiempoMaximoVisto) {
+                tiempoMaximoVisto = video.currentTime;
+            }
+        }
+    });
+
+    // EVITAR CLICK EN LA BARRA DE PROGRESO (SEEKING)
+    video.addEventListener('seeking', () => {
+        if (video.currentTime > tiempoMaximoVisto) {
+            video.currentTime = tiempoMaximoVisto;
+        }
+    });
+
+    // ENVÍO DE DATOS AL FINALIZAR
+    video.addEventListener('ended', () => {
+        document.getElementById('statusMsg').innerText = "✅ ¡Taller Completado! Registrando asistencia...";
+        enviarAsistencia(agenteActual);
+    });
+
+function enviarAsistencia(nombre) {
+    // Esta es la URL de envío directo de tu formulario
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse"; 
+    
+    // Este es el ID del campo "Nombre" que extrajimos de tu link
+    const entryID = "entry.933702930"; 
+
+    const formData = new URLSearchParams();
+    formData.append(entryID, nombre);
+
+    fetch(formURL, {
+        method: "POST",
+        mode: "no-cors", // Importante para que funcione desde GitHub Pages
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formData.toString()
+    }).then(() => {
+        alert("✅ " + nombre + ", tu asistencia ha sido registrada automáticamente en el sistema.");
+    }).catch((error) => {
+        console.error("Error al enviar:", error);
+        alert("Hubo un problema al registrar la asistencia. Por favor, toma una captura de pantalla del video terminado.");
+    });
+}
+    
+</script>
+
+</body>
+</html>
