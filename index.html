@@ -86,28 +86,38 @@
     });
 
 function enviarAsistencia(nombre) {
-    // Esta es la URL de envío directo de tu formulario
-    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse"; 
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse";
+    const entryID = "entry.933702930";
+
+    // Crear iframe oculto para evitar problemas de bloqueo (CORS)
+    const iframe = document.createElement("iframe");
+    iframe.name = "hidden_iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    // Crear formulario dinámico
+    const form = document.createElement("form");
+    form.action = formURL;
+    form.method = "POST";
+    form.target = "hidden_iframe";
+
+    // Crear el campo de texto con el nombre del agente
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = entryID;
+    input.value = nombre;
+
+    // Unir todo y enviar
+    form.appendChild(input);
+    document.body.appendChild(form);
     
-    // Este es el ID del campo "Nombre" que extrajimos de tu link
-    const entryID = "entry.933702930"; 
-
-    const formData = new URLSearchParams();
-    formData.append(entryID, nombre);
-
-    fetch(formURL, {
-        method: "POST",
-        mode: "no-cors", // Importante para que funcione desde GitHub Pages
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData.toString()
-    }).then(() => {
+    try {
+        form.submit();
         alert("✅ " + nombre + ", tu asistencia ha sido registrada automáticamente en el sistema.");
-    }).catch((error) => {
-        console.error("Error al enviar:", error);
-        alert("Hubo un problema al registrar la asistencia. Por favor, toma una captura de pantalla del video terminado.");
-    });
+    } catch (e) {
+        console.error("Error al enviar:", e);
+        alert("Hubo un problema. Por favor, toma captura de pantalla al terminar el video.");
+    }
 }
     
 </script>
@@ -115,3 +125,4 @@ function enviarAsistencia(nombre) {
 </body>
 
 </html>
+
