@@ -16,20 +16,23 @@
         video { width: 100%; border-radius: 8px; background: black; }
         .progress-bar { background: #eee; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
         #fill { background: var(--primary); height: 100%; width: 0%; transition: 0.2s; }
+        .logo-glovo { width: 120px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="loginSection">
-    <h2>Web de Módulos Informativos</h2>
-    <p>Ingresa tu número de documento para comenzar</p>
-    
-    <label for="nombre">DNI del Agente:</label><br><br>
-    <input type="text" id="nombre" placeholder="Ingresa los 8 dígitos" required><br><br>
-    
-    <button onclick="iniciarTaller()">Entrar al Taller</button>
-</div>
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/82/Glovo_logo.svg/1200px-Glovo_logo.svg.png" alt="Glovo" class="logo-glovo">
+        <h2>Web de Módulos Informativos</h2>
+        <p>Ingresa tu número de documento para comenzar</p>
+        
+        <label for="nombre">DNI del Agente:</label><br><br>
+        <input type="text" id="nombre" placeholder="Ingresa los 8 dígitos" required><br><br>
+        
+        <button onclick="iniciarTaller()">Entrar al Taller</button>
+    </div>
+
     <div id="videoContainer">
         <h3 id="displayNombre"></h3>
         <video id="tallerVideo" controls controlsList="nodownload" disablePictureInPicture>
@@ -37,7 +40,7 @@
             Tu navegador no soporta video.
         </video>
         <div class="progress-bar"><div id="fill"></div></div>
-        <p id="statusMsg">Mira el video completo para registrar tu asistencia.</p>
+        <p id="statusMsg">Mira el video completo para registrar tu asistencia e ir al test.</p>
     </div>
 </div>
 
@@ -47,22 +50,25 @@
     let tiempoMaximoVisto = 0;
     let agenteActual = "";
 
-    function empezarTaller() {
-        agenteActual = document.getElementById('agenteNombre').value;
-        if(agenteActual.length < 5) return alert("Por favor, ingresa tu nombre completo");
+    function iniciarTaller() {
+        // Corregido: Obtenemos el valor del ID correcto "nombre"
+        agenteActual = document.getElementById('nombre').value;
+        
+        if(agenteActual.length < 8) {
+            return alert("Por favor, ingresa un DNI válido (8 dígitos).");
+        }
         
         document.getElementById('loginSection').style.display = "none";
         document.getElementById('videoContainer').style.display = "block";
-        document.getElementById('displayNombre').innerText = "Agente: " + agenteActual;
+        document.getElementById('displayNombre').innerText = "Agente DNI: " + agenteActual;
+        video.play();
     }
 
     // LÓGICA DE BLOQUEO DE SALTO
     video.addEventListener('timeupdate', () => {
-        // Actualizar barra de progreso visual
         let pc = (video.currentTime / video.duration) * 100;
         fill.style.width = pc + "%";
 
-        // Si el usuario intenta adelantar más de 2 segundos de lo visto
         if (video.currentTime > tiempoMaximoVisto + 2) {
             video.currentTime = tiempoMaximoVisto;
         } else {
@@ -72,7 +78,6 @@
         }
     });
 
-    // EVITAR CLICK EN LA BARRA DE PROGRESO (SEEKING)
     video.addEventListener('seeking', () => {
         if (video.currentTime > tiempoMaximoVisto) {
             video.currentTime = tiempoMaximoVisto;
@@ -85,47 +90,42 @@
         enviarAsistencia(agenteActual);
     });
 
-<script>
-function enviarAsistencia(nombre) {
-    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse";
-    const entryID = "entry.933702930"; // ID del campo DNI en tu Form
-    
-    // Link para que el agente complete el TEST después del video
-    const urlTest = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/viewform?entry.933702930=" + nombre;
+    function enviarAsistencia(nombre) {
+        const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse";
+        const entryID = "entry.933702930"; // ID del campo DNI
+        
+        // Link al Test que se abrirá al final con el DNI ya escrito
+        const urlTest = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/viewform?entry.933702930=" + nombre;
 
-    const iframe = document.createElement("iframe");
-    iframe.name = "hidden_iframe";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
+        const iframe = document.createElement("iframe");
+        iframe.name = "hidden_iframe";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
 
-    const form = document.createElement("form");
-    form.action = formURL;
-    form.method = "POST";
-    form.target = "hidden_iframe";
+        const form = document.createElement("form");
+        form.action = formURL;
+        form.method = "POST";
+        form.target = "hidden_iframe";
 
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = entryID;
-    input.value = nombre;
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = entryID;
+        input.value = nombre;
 
-    form.appendChild(input);
-    document.body.appendChild(form);
-    
-    try {
-        form.submit(); // Registro automático de "Video Visto"
-        alert("✅ Video completado. Ahora responde el test de evaluación.");
-        window.location.href = urlTest; // Redirige al test con el DNI ya escrito
-    } catch (e) {
-        alert("Error al registrar. Por favor, avisa a tu supervisor.");
+        form.appendChild(input);
+        document.body.appendChild(form);
+        
+        try {
+            form.submit(); // Registro en Excel
+            setTimeout(() => {
+                alert("✅ Video completado. Presiona OK para iniciar tu evaluación.");
+                window.location.href = urlTest; // Redirección al test
+            }, 500);
+        } catch (e) {
+            alert("Error al registrar. Por favor, toma captura de pantalla.");
+        }
     }
-}
 </script>
 
 </body>
-
 </html>
-
-
-
-
-
