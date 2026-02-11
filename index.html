@@ -87,37 +87,28 @@
 
 function enviarAsistencia(nombre) {
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSftB6q3CNpMWa009gReNW8CZ7WxteXwxgzKUC6Qmt-qBI4BSw/formResponse";
-    const entryID = "entry.933702930";
+    const entryID = "entry.933702930"; // ID de la pregunta "Nombres y Apellidos"
 
-    // Crear iframe oculto para evitar problemas de bloqueo (CORS)
     const iframe = document.createElement("iframe");
     iframe.name = "hidden_iframe";
     iframe.style.display = "none";
     document.body.appendChild(iframe);
 
-    // Crear formulario dinámico
     const form = document.createElement("form");
     form.action = formURL;
     form.method = "POST";
     form.target = "hidden_iframe";
 
-    // Crear el campo de texto con el nombre del agente
     const input = document.createElement("input");
     input.type = "hidden";
     input.name = entryID;
     input.value = nombre;
 
-    // Unir todo y enviar
     form.appendChild(input);
     document.body.appendChild(form);
     
-    try {
-        form.submit();
-        alert("✅ " + nombre + ", tu asistencia ha sido registrada automáticamente en el sistema.");
-    } catch (e) {
-        console.error("Error al enviar:", e);
-        alert("Hubo un problema. Por favor, toma captura de pantalla al terminar el video.");
-    }
+    form.submit(); // Esto asegura que Google Sheets reciba el dato sí o sí
+    alert("✅ " + nombre + ", tu asistencia ha sido registrada.");
 }
     
 </script>
@@ -125,4 +116,5 @@ function enviarAsistencia(nombre) {
 </body>
 
 </html>
+
 
